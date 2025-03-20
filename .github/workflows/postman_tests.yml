@@ -34,7 +34,6 @@ jobs:
           newman run ToolShopE2EAPITestingSuite \
             -e QAEnvironment \
             --delay-request 500 \
-            --folder User_Service \
             --reporter-htmlextra-showFolderDescription \
             --reporter-htmlextra-title "ToolShopAPITestReport" \
             --reporter-htmlextra-browserTitle "HtmlExtra Report" \
