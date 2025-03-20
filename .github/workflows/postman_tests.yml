@@ -1,0 +1,46 @@
+name: Run Postman API Tests Daily
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs every day at midnight UTC
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  run-postman-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Install Newman & Reporter
+      - name: Install Newman & HTMLExtra Reporter
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+
+      # Run Postman Collection
+      - name: Run Postman Collection
+        run: |
+          TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+          REPORT_DIR="reports/report_$TIMESTAMP"
+
+          mkdir -p $REPORT_DIR
+
+          newman run ToolShopE2EAPITestingSuite \
+            -e QAEnvironment \
+            --delay-request 500 \
+            --folder User_Service \
+            --reporter-htmlextra-showFolderDescription \
+            --reporter-htmlextra-title "ToolShopAPITestReport" \
+            --reporter-htmlextra-browserTitle "HtmlExtra Report" \
+            -r cli,htmlextra \
+            --reporter-htmlextra-export $REPORT_DIR/report.html
+
+      # Upload Report as Artifact
+      - name: Upload HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-report-${{ github.run_id }}
+          path: reports/
+          retention-days: 30  # Keep reports for 30 days
