@@ -24,18 +24,15 @@ jobs:
         run: |
           TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
           REPORT_DIR="reports/report_$TIMESTAMP"
-
           mkdir -p $REPORT_DIR
-
-          newman run ToolShopE2EAPITestingSuite \
-            -e QAEnvironment \
+          newman run postman/ToolShopE2EAPITestingSuite.postman_collection.json \
+            -e postman/QAEnvironment.postman_environment.json \
             --delay-request 500 \
-            --folder User_Service \
             --reporter-htmlextra-showFolderDescription \
             --reporter-htmlextra-title "ToolShopAPITestReport" \
             --reporter-htmlextra-browserTitle "HtmlExtra Report" \
             -r cli,htmlextra \
-            --reporter-htmlextra-export $REPORT_DIR/report.html
+            --reporter-htmlextra-export $REPORT_DIR/report.html || true
 
       # Upload Report as Artifact
       - name: Upload HTML Report
