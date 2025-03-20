@@ -19,25 +19,33 @@ jobs:
         run: |
           npm install -g newman newman-reporter-htmlextra
 
+      # Verify installation
+      - name: Verify Newman & HTMLExtra Installation
+        run: |
+          newman -v
+          newman run --help | grep htmlextra || echo "HTMLExtra Reporter not installed!"
+
       # Run Postman Collection
       - name: Run Postman Collection
         run: |
           TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
           REPORT_DIR="reports/report_$TIMESTAMP"
           mkdir -p $REPORT_DIR
-          newman run postman/ToolShopE2EAPITestingSuite.postman_collection.json \
-            -e postman/QAEnvironment.postman_environment.json \
+          newman run ToolShopE2EAPITestingSuite \
+            -e QAEnvironment \
             --delay-request 500 \
+            --folder User_Service \
             --reporter-htmlextra-showFolderDescription \
             --reporter-htmlextra-title "ToolShopAPITestReport" \
             --reporter-htmlextra-browserTitle "HtmlExtra Report" \
             -r cli,htmlextra \
-            --reporter-htmlextra-export $REPORT_DIR/report.html || true
+            --reporter-htmlextra-export $REPORT_DIR/report.html
+        continue-on-error: true
 
       # Upload Report as Artifact
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: postman-report-${{ github.run_id }}
-          path: reports/
-          retention-days: 30  # Keep reports for 30 days
+          path: reports/**
+          retention-days: 30
