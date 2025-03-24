@@ -29,7 +29,7 @@ jobs:
       - name: Run Postman Collection
         run: |
           TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
-          REPORT_DIR="reports/report_$TIMESTAMP"
+          REPORT_DIR="reports"
           mkdir -p $REPORT_DIR
           newman run ToolShopE2EAPITestingSuite \
             -e QAEnvironment \
@@ -38,13 +38,16 @@ jobs:
             --reporter-htmlextra-title "ToolShopAPITestReport" \
             --reporter-htmlextra-browserTitle "HtmlExtra Report" \
             -r cli,htmlextra \
-            --reporter-htmlextra-export $REPORT_DIR/report.html
-        continue-on-error: true
+            --reporter-htmlextra-export "$REPORT_DIR/report.html"
+
+      # Debugging Step: List files in reports directory
+      - name: Debug - List reports directory
+        run: ls -R reports || echo "Reports directory not found!"
 
       # Upload Report as Artifact
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: postman-report-${{ github.run_id }}
-          path: reports/**/*  # Ensures all subdirectories are included
+          path: reports/**
           retention-days: 30
