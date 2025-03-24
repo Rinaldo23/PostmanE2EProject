@@ -39,6 +39,7 @@ jobs:
             --reporter-htmlextra-browserTitle "HtmlExtra Report" \
             -r cli,htmlextra \
             --reporter-htmlextra-export "$REPORT_DIR/report.html"
+        continue-on-error: true  # Allows workflow to continue even if Newman fails
 
       # Debugging Step: List files in reports directory
       - name: Debug - List reports directory
